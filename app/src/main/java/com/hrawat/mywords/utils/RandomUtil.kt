@@ -10,6 +10,8 @@ class RandomUtil {
             , 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M')
     val random = Random()
 
+    val words = arrayListOf("FORD", "MARUTI", "JEEP", "INTEL", "APPLE", "STRING", "SIMPLE", "GAME","CARD","REALITY")
+
     fun getRandomDigit(): ArrayList<String> {
         val randomList = ArrayList<String>()
         var i = 0
@@ -21,6 +23,17 @@ class RandomUtil {
         }
         return randomList
 
+    }
+
+
+    fun getRandomPosition(): Int{
+        return random.nextInt(49)
+    }
+
+
+    fun getRandomWord(): String {
+
+        return words[random.nextInt(words.size)]
     }
 
 }

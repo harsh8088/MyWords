@@ -62,5 +62,17 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
         notifyDataSetChanged()
     }
 
+    fun addWordsVertically(positon:Int,wordList:String) {
+
+        var newPosition=positon
+        for (char in wordList.toCharArray().asList()) {
+            puzzleList[ newPosition]=char.toString()
+            newPosition += 7
+        }
+        notifyDataSetChanged()
+    }
+
+
+
 }
 

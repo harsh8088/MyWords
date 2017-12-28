@@ -1,6 +1,8 @@
 package com.hrawat.mywords
 
+import android.app.Dialog
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.SystemClock
 import android.support.v7.app.AppCompatActivity
@@ -8,7 +10,9 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import com.hrawat.mywords.utils.RandomUtil
 
 
@@ -17,8 +21,11 @@ class PuzzleActivity : AppCompatActivity() {
     var startTime = 0L
 
     var handler = Handler()
+    private lateinit var categoryAdapter: WordPuzzleAdapter
 
     lateinit var textTimer: TextView
+    private lateinit var layoutStarted: LinearLayout
+    private lateinit var ran: RandomUtil
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +37,12 @@ class PuzzleActivity : AppCompatActivity() {
     private fun initViews() {
         val btnStart = findViewById<Button>(R.id.btn_start)
         textTimer = findViewById(R.id.tv_timer)
-        val categoryAdapter = WordPuzzleAdapter(this@PuzzleActivity)
+        textTimer.text = ""
+        btnStart.visibility = View.VISIBLE
+        layoutStarted = findViewById(R.id.ll_started)
+        layoutStarted.visibility = View.GONE
+        val findWord = findViewById<TextView>(R.id.text_find)
+        categoryAdapter = WordPuzzleAdapter(this@PuzzleActivity)
         val recyclerView = findViewById<RecyclerView>(R.id.rv_word_puzzle)
 
         val mLayoutManager = GridLayoutManager(this, 7)
@@ -42,15 +54,76 @@ class PuzzleActivity : AppCompatActivity() {
             }
         })
 
-        val ran = RandomUtil()
+        ran = RandomUtil()
         categoryAdapter.addRandomWords(ran.getRandomDigit())
 
+        findWord.text = ran.getRandomWord()
+        hideWordinArray(findWord.text.toString())
 
 
         btnStart.setOnClickListener(View.OnClickListener {
-            startTime = SystemClock.uptimeMillis()
-            handler.postDelayed(runnable, 0)
+            btnStart.visibility = View.GONE
+            layoutStarted.visibility = View.VISIBLE
 
+
+            object : CountDownTimer(30000, 1000) {
+
+                override fun onTick(millisUntilFinished: Long) {
+                    textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
+                    //here you can have your logic to set text to edittext
+                }
+
+                override fun onFinish() {
+                    showResults()
+                }
+
+            }.start()
+
+//            startTime = SystemClock.uptimeMillis()
+//            handler.postDelayed(runnable, 0)
+
+        })
+    }
+
+    private fun hideWordinArray(word: String) {
+        var length = word.length
+
+        var randomPos = ran.getRandomPosition()
+        var row = randomPos % 7
+        //check horizontal
+        var size = 7 - row
+        if (size >= length) {
+            Toast.makeText(this@PuzzleActivity, "horizontal success at " + randomPos, Toast.LENGTH_SHORT).show()
+        } else
+            Toast.makeText(this@PuzzleActivity, "horizontal fail at " + randomPos, Toast.LENGTH_SHORT).show()
+        //check vertical
+        var colomn = 0
+        if (randomPos < 6)
+            colomn = 1
+        else
+            colomn = randomPos / 7
+        if (7 - colomn >= length) {
+            categoryAdapter.addWordsVertically(randomPos, word)
+            Toast.makeText(this@PuzzleActivity, "vertical success at " + randomPos, Toast.LENGTH_SHORT).show()
+        } else
+            Toast.makeText(this@PuzzleActivity, "vertical fail at " + randomPos, Toast.LENGTH_SHORT).show()
+
+
+    }
+
+    private fun showResults() {
+        val dialog = Dialog(this)
+        dialog.setTitle("Result")
+        dialog.setCancelable(false)
+        dialog.setContentView(R.layout.result_dialog)
+        val btnOk = dialog.findViewById<Button>(R.id.btn_ok)
+        dialog.show()
+
+
+
+        btnOk.setOnClickListener(View.OnClickListener {
+            dialog.dismiss()
+            initViews()
         })
     }
 
