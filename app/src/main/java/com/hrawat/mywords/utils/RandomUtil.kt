@@ -1,5 +1,6 @@
 package com.hrawat.mywords.utils
 
+import com.hrawat.mywords.model.Puzzle
 import java.util.*
 
 /**
@@ -12,11 +13,11 @@ class RandomUtil {
 
     val words = arrayListOf("FORD", "MARUTI", "JEEP", "INTEL", "APPLE", "STRING", "SIMPLE", "GAME","CARD","REALITY")
 
-    fun getRandomDigit(): ArrayList<String> {
-        val randomList = ArrayList<String>()
+    fun getRandomDigit(): ArrayList<Puzzle> {
+        val randomList = ArrayList<Puzzle>()
         var i = 0
         while (i < 49) {
-            randomList.add(randomWords[random.nextInt(25)].toString())
+            randomList.add(Puzzle(randomWords[random.nextInt(25)].toString(),i,false))
 //            val randomNum = ThreadLocalRandom.current().nextInt(65, 90 + 1)
 //            randomList.add(Character.toString(randomNum.toChar()))
             i++

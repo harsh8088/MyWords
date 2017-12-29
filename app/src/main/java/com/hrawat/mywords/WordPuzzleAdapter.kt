@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckedTextView
 import android.widget.LinearLayout
+import com.hrawat.mywords.model.Puzzle
 
 /**
  * Created by hrawat on 12/25/2017.
@@ -14,11 +15,12 @@ import android.widget.LinearLayout
 class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var categoryListener: CategoryListener? = null
-    private var puzzleList = ArrayList<String>()
+    private var puzzleList = ArrayList<Puzzle>()
+    private lateinit var wordPosList: MutableList<Int>
 
     interface CategoryListener {
 
-        fun onCategoryClick(categoryAdapter: WordPuzzleAdapter, categoryName: String)
+        fun onCategoryClick(position: Int, isChecked: Boolean)
     }
 
     fun setCategoryListener(listener: CategoryListener) {
@@ -33,11 +35,12 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         if (holder is WordPuzzleViewHolder) {
             val details = puzzleList[position]
-            holder.word.text = details
+            holder.word.text = details.text
             holder.background.setOnClickListener(View.OnClickListener
             {
                 holder.word.isChecked = !holder.word.isChecked
-//                categoryListener?.onCategoryClick(this@WordPuzzleAdapter, details)
+                details.isChecked = holder.word.isChecked
+                categoryListener?.onCategoryClick(position, holder.word.isChecked)
             })
         }
     }
@@ -55,23 +58,32 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
     }
 
-    fun addRandomWords(randomList: ArrayList<String>) {
+    fun addRandomWords(randomList: ArrayList<Puzzle>) {
 
         puzzleList.clear()
         puzzleList.addAll(randomList)
         notifyDataSetChanged()
     }
 
-    fun addWordsVertically(positon:Int,wordList:String) {
+    fun addWordsVertically(positon: Int, wordList: String) {
 
-        var newPosition=positon
+        var newPosition = positon
+        wordPosList = arrayListOf()
         for (char in wordList.toCharArray().asList()) {
-            puzzleList[ newPosition]=char.toString()
+            puzzleList[newPosition] = Puzzle(char.toString(), newPosition, false)
+            wordPosList.add(newPosition)
             newPosition += 7
         }
         notifyDataSetChanged()
     }
 
+    fun getList(): ArrayList<Puzzle> {
+        return puzzleList
+    }
+
+    fun getWordPositionList(): MutableList<Int> {
+        return wordPosList
+    }
 
 
 }

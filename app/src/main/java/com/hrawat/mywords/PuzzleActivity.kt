@@ -21,11 +21,12 @@ class PuzzleActivity : AppCompatActivity() {
     var startTime = 0L
 
     var handler = Handler()
-    private lateinit var categoryAdapter: WordPuzzleAdapter
+    private lateinit var puzzleAdapter: WordPuzzleAdapter
 
     lateinit var textTimer: TextView
     private lateinit var layoutStarted: LinearLayout
     private lateinit var ran: RandomUtil
+    private lateinit var timeCount:MyCount
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,20 +43,35 @@ class PuzzleActivity : AppCompatActivity() {
         layoutStarted = findViewById(R.id.ll_started)
         layoutStarted.visibility = View.GONE
         val findWord = findViewById<TextView>(R.id.text_find)
-        categoryAdapter = WordPuzzleAdapter(this@PuzzleActivity)
+        puzzleAdapter = WordPuzzleAdapter(this@PuzzleActivity)
         val recyclerView = findViewById<RecyclerView>(R.id.rv_word_puzzle)
 
         val mLayoutManager = GridLayoutManager(this, 7)
         recyclerView.layoutManager = mLayoutManager
-        recyclerView.adapter = categoryAdapter
-        categoryAdapter.setCategoryListener(object : WordPuzzleAdapter.CategoryListener {
-            override fun onCategoryClick(puzzleAdapter: WordPuzzleAdapter, details: String) {
+        recyclerView.adapter = puzzleAdapter
+        puzzleAdapter.setCategoryListener(object : WordPuzzleAdapter.CategoryListener {
+            override fun onCategoryClick( position: Int, isChecked: Boolean) {
+
+                val list = puzzleAdapter.getList()
+                val posList = puzzleAdapter.getWordPositionList()
+                var ismatched = false
+                for (puzzle in list) {
+                    if(posList.contains(puzzle.position)) {
+                        ismatched = puzzle.isChecked
+                    }
+                    else if(puzzle.isChecked)
+                        ismatched=false
+                }
+                if (ismatched) {
+                 timeCount.onFinish()
+                }
+
 
             }
         })
 
         ran = RandomUtil()
-        categoryAdapter.addRandomWords(ran.getRandomDigit())
+        puzzleAdapter.addRandomWords(ran.getRandomDigit())
 
         findWord.text = ran.getRandomWord()
         hideWordinArray(findWord.text.toString())
@@ -65,19 +81,20 @@ class PuzzleActivity : AppCompatActivity() {
             btnStart.visibility = View.GONE
             layoutStarted.visibility = View.VISIBLE
 
+             timeCount=MyCount()
 
-            object : CountDownTimer(30000, 1000) {
-
-                override fun onTick(millisUntilFinished: Long) {
-                    textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
-                    //here you can have your logic to set text to edittext
-                }
-
-                override fun onFinish() {
-                    showResults()
-                }
-
-            }.start()
+//
+//            object : CountDownTimer(30000, 1000) {
+//
+//                override fun onTick(millisUntilFinished: Long) {
+//                    textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
+//                    //here you can have your logic to set text to edittext
+//                }
+//
+//                override fun onFinish() {
+//                    showResults()
+//                }
+//            }.start()
 
 //            startTime = SystemClock.uptimeMillis()
 //            handler.postDelayed(runnable, 0)
@@ -103,7 +120,7 @@ class PuzzleActivity : AppCompatActivity() {
         else
             colomn = randomPos / 7
         if (7 - colomn >= length) {
-            categoryAdapter.addWordsVertically(randomPos, word)
+            puzzleAdapter.addWordsVertically(randomPos, word)
             Toast.makeText(this@PuzzleActivity, "vertical success at " + randomPos, Toast.LENGTH_SHORT).show()
         } else
             Toast.makeText(this@PuzzleActivity, "vertical fail at " + randomPos, Toast.LENGTH_SHORT).show()
@@ -126,6 +143,7 @@ class PuzzleActivity : AppCompatActivity() {
             initViews()
         })
     }
+
 
     private var runnable: Runnable = object : Runnable {
 
@@ -159,4 +177,16 @@ class PuzzleActivity : AppCompatActivity() {
         }
 
     }
+
+    inner class MyCount :CountDownTimer(30000, 1000){
+        override fun onTick(millisUntilFinished: Long) {
+            textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
+        }
+
+        override fun onFinish() {
+            showResults()
+        }
+
+    }
+
 }
