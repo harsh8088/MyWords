@@ -20,7 +20,7 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
     interface CategoryListener {
 
-        fun onCategoryClick(position: Int, isChecked: Boolean)
+        fun onCategoryClick(position: Int, isChecked: Boolean, puzzle: Puzzle)
     }
 
     fun setCategoryListener(listener: CategoryListener) {
@@ -39,8 +39,8 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
             holder.background.setOnClickListener(View.OnClickListener
             {
                 holder.word.isChecked = !holder.word.isChecked
-                details.isChecked = holder.word.isChecked
-                categoryListener?.onCategoryClick(position, holder.word.isChecked)
+//                details.isChecked = holder.word.isChecked
+                categoryListener?.onCategoryClick(position, holder.word.isChecked, details)
             })
         }
     }
@@ -79,6 +79,11 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
     fun getList(): ArrayList<Puzzle> {
         return puzzleList
+    }
+
+    fun setWordPositionList(wordPositon: MutableList<Int>) {
+        wordPosList = arrayListOf()
+        wordPosList.addAll(wordPositon)
     }
 
     fun getWordPositionList(): MutableList<Int> {

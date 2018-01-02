@@ -20,9 +20,6 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-
-//        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-//        setSupportActionBar(toolbar)
         categoryAdapter = CategoryAdapter(this@HomeActivity)
         val recyclerView = findViewById<RecyclerView>(R.id.rv_category)
         val mLayoutManager = GridLayoutManager(this, 2)

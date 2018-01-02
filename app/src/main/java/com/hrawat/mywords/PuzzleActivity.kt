@@ -2,9 +2,6 @@ package com.hrawat.mywords
 
 import android.app.Dialog
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
-import android.os.SystemClock
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -13,20 +10,18 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.hrawat.mywords.model.Puzzle
 import com.hrawat.mywords.utils.RandomUtil
 
 
 class PuzzleActivity : AppCompatActivity() {
 
-    var startTime = 0L
 
-    var handler = Handler()
     private lateinit var puzzleAdapter: WordPuzzleAdapter
 
     lateinit var textTimer: TextView
     private lateinit var layoutStarted: LinearLayout
-    private lateinit var ran: RandomUtil
-    private lateinit var timeCount:MyCount
+    private lateinit var random: RandomUtil
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,62 +37,56 @@ class PuzzleActivity : AppCompatActivity() {
         btnStart.visibility = View.VISIBLE
         layoutStarted = findViewById(R.id.ll_started)
         layoutStarted.visibility = View.GONE
-        val findWord = findViewById<TextView>(R.id.text_find)
+        val textWord = findViewById<TextView>(R.id.text_find)
         puzzleAdapter = WordPuzzleAdapter(this@PuzzleActivity)
         val recyclerView = findViewById<RecyclerView>(R.id.rv_word_puzzle)
 
         val mLayoutManager = GridLayoutManager(this, 7)
         recyclerView.layoutManager = mLayoutManager
         recyclerView.adapter = puzzleAdapter
+        val ischeckedList = ArrayList<Puzzle>()
         puzzleAdapter.setCategoryListener(object : WordPuzzleAdapter.CategoryListener {
-            override fun onCategoryClick( position: Int, isChecked: Boolean) {
-
-                val list = puzzleAdapter.getList()
+            override fun onCategoryClick(position: Int, isChecked: Boolean, puzzle: Puzzle) {
                 val posList = puzzleAdapter.getWordPositionList()
-                var ismatched = false
-                for (puzzle in list) {
-                    if(posList.contains(puzzle.position)) {
-                        ismatched = puzzle.isChecked
+                if (!ischeckedList.isEmpty() && ischeckedList.contains(puzzle)) {
+                    if (isChecked) {
+                        puzzle.isChecked = isChecked
+                        ischeckedList.add(puzzle)
+                    } else {
+                        ischeckedList.remove(puzzle)
                     }
-                    else if(puzzle.isChecked)
-                        ismatched=false
+                } else if (isChecked) {
+                    puzzle.isChecked = isChecked
+                    ischeckedList.add(puzzle)
                 }
-                if (ismatched) {
-                 timeCount.onFinish()
+
+                var matched = false
+                if (ischeckedList.size == posList.size) {
+                    for (checkedPuzzle in ischeckedList) {
+                        matched = posList.contains(checkedPuzzle.position)
+                    }
+                    if (matched)
+                        showResults()
                 }
 
 
             }
         })
 
-        ran = RandomUtil()
-        puzzleAdapter.addRandomWords(ran.getRandomDigit())
+        random = RandomUtil()
+//        puzzleAdapter.addRandomWords(random.getRandomDigit())
 
-        findWord.text = ran.getRandomWord()
-        hideWordinArray(findWord.text.toString())
+        textWord.text = random.getRandomWord()
+
+        puzzleAdapter.addRandomWords(random.getRandomArray(textWord.text.toString()))
+        puzzleAdapter.setWordPositionList(random.getWordPositionList())
+//        hideWordinArray(textWord.text.toString())
 
 
         btnStart.setOnClickListener(View.OnClickListener {
             btnStart.visibility = View.GONE
             layoutStarted.visibility = View.VISIBLE
 
-             timeCount=MyCount()
-
-//
-//            object : CountDownTimer(30000, 1000) {
-//
-//                override fun onTick(millisUntilFinished: Long) {
-//                    textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
-//                    //here you can have your logic to set text to edittext
-//                }
-//
-//                override fun onFinish() {
-//                    showResults()
-//                }
-//            }.start()
-
-//            startTime = SystemClock.uptimeMillis()
-//            handler.postDelayed(runnable, 0)
 
         })
     }
@@ -105,7 +94,7 @@ class PuzzleActivity : AppCompatActivity() {
     private fun hideWordinArray(word: String) {
         var length = word.length
 
-        var randomPos = ran.getRandomPosition()
+        var randomPos = random.getRandomPosition()
         var row = randomPos % 7
         //check horizontal
         var size = 7 - row
@@ -144,49 +133,5 @@ class PuzzleActivity : AppCompatActivity() {
         })
     }
 
-
-    private var runnable: Runnable = object : Runnable {
-
-        override fun run() {
-            var timeBuff: Long = 0
-
-            var milliSeconds: Long = 0
-            var Seconds: Long
-            val Minutes: Long
-            val MilliSeconds: Long
-            var updateTime: Long
-            milliSeconds = SystemClock.uptimeMillis() - startTime
-
-            updateTime = timeBuff + milliSeconds
-
-
-            Seconds = (updateTime / 1000)
-
-
-            Minutes = Seconds / 60
-
-            Seconds %= 60
-
-            MilliSeconds = (updateTime % 1000)
-
-            textTimer.text = ("" + Minutes + ":"
-                    + String.format("%02d", Seconds) + ":"
-                    + String.format("%03d", MilliSeconds))
-
-            handler.postDelayed(this, 0)
-        }
-
-    }
-
-    inner class MyCount :CountDownTimer(30000, 1000){
-        override fun onTick(millisUntilFinished: Long) {
-            textTimer.text = ("Remaining: " + millisUntilFinished / 1000)
-        }
-
-        override fun onFinish() {
-            showResults()
-        }
-
-    }
 
 }
