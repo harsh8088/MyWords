@@ -8,8 +8,9 @@
 
     <ImageView
         android:id="@+id/iv_category_background"
-        android:layout_width="250dp"
+        android:layout_width="200dp"
         android:layout_height="200dp"
+        android:scaleType="fitXY"
         android:background="@drawable/category_image"
         />
 
@@ -18,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@android:drawable/alert_dark_frame"/>
+        tools:src="@android:drawable/alert_dark_frame"/>
 
     <TextView
         android:id="@+id/tv_category_name"

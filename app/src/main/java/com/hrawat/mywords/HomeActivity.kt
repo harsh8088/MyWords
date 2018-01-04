@@ -42,18 +42,13 @@ class HomeActivity : AppCompatActivity() {
 
     private fun getDataCategories() {
         val nearByCategories = ArrayList<Category>()
-        nearByCategories.add(Category("", "Tic Tac Toe", ""))
-        nearByCategories.add(Category("", "Binary Challenge", ""))
-        nearByCategories.add(Category("", "Binary Cube", ""))
-        nearByCategories.add(Category("", "Word Puzzle", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
-        nearByCategories.add(Category("", "Challenge", ""))
+        nearByCategories.add(Category("", "Tic Tac Toe", R.drawable.ic_tic_tac_toe))
+        nearByCategories.add(Category("", "Binary Challenge", R.drawable.ic_binary_cube))
+        nearByCategories.add(Category("", "Binary Cube", R.drawable.ic_binary_cube))
+        nearByCategories.add(Category("", "Word Puzzle", R.drawable.ic_word_puzzle))
+        nearByCategories.add(Category("", "Challenge", R.drawable.ic_word_puzzle))
+        nearByCategories.add(Category("", "Challenge", R.drawable.ic_word_puzzle))
+
         categoryAdapter.addAllCategories(nearByCategories)
 
     }

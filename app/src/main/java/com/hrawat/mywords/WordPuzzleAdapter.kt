@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckedTextView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import com.hrawat.mywords.model.Puzzle
 
 /**
@@ -17,6 +18,7 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
     private var categoryListener: CategoryListener? = null
     private var puzzleList = ArrayList<Puzzle>()
     private lateinit var wordPosList: MutableList<Int>
+    private var isLoading: Boolean = true
 
     interface CategoryListener {
 
@@ -29,7 +31,16 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
 
     override fun getItemCount(): Int {
-        return puzzleList.size
+        return if (puzzleList.size == 0)
+            1
+        else puzzleList.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return if (isLoading) {
+            1
+        } else
+            0
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
@@ -43,11 +54,26 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
                 categoryListener?.onCategoryClick(position, holder.word.isChecked, details)
             })
         }
+        if (holder is LoadingViewHolder) {
+            holder.progressBar.visibility = View.VISIBLE
+
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.item_word_puzzle, null)
-        return WordPuzzleViewHolder(view)
+
+        return when (viewType) {
+            0 -> {
+                val view = LayoutInflater.from(context).inflate(R.layout.item_word_puzzle, null)
+                WordPuzzleViewHolder(view)
+            }
+
+            else -> {
+                val view = LayoutInflater.from(context).inflate(R.layout.item_loading, null)
+                WordPuzzleViewHolder(view)
+            }
+        }
+
     }
 
 
@@ -58,10 +84,17 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
     }
 
+    private inner class LoadingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+
+        val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
+
+    }
+
     fun addRandomWords(randomList: ArrayList<Puzzle>) {
 
         puzzleList.clear()
         puzzleList.addAll(randomList)
+        isLoading = false
         notifyDataSetChanged()
     }
 
@@ -88,6 +121,12 @@ class WordPuzzleAdapter(private val context: Context) : RecyclerView.Adapter<Rec
 
     fun getWordPositionList(): MutableList<Int> {
         return wordPosList
+    }
+
+    fun clearList() {
+
+        puzzleList.clear()
+        notifyDataSetChanged()
     }
 
 

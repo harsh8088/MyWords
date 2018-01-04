@@ -37,8 +37,8 @@ class CategoryAdapter(private val context: Context) : RecyclerView.Adapter<Recyc
         if (holder is CategoryViewHolder) {
             val details = categoryList[position]
 //        viewHolder.icon.(details.getIcon());
-//        viewHolder.background
-            holder.categoryName.text = details.name
+            holder.background.setImageResource(details.thumbnail)
+//            holder.categoryName.text = details.name
             holder.background.setOnClickListener(View.OnClickListener
             { categoryListener?.onCategoryClick(this@CategoryAdapter, details.name) })
         }

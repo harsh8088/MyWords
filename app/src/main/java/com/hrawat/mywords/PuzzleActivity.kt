@@ -1,6 +1,8 @@
 package com.hrawat.mywords
 
+import android.annotation.SuppressLint
 import android.app.Dialog
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
@@ -19,9 +21,9 @@ class PuzzleActivity : AppCompatActivity() {
 
     private lateinit var puzzleAdapter: WordPuzzleAdapter
 
-    lateinit var textTimer: TextView
     private lateinit var layoutStarted: LinearLayout
     private lateinit var random: RandomUtil
+    private lateinit var textWord: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,13 +33,11 @@ class PuzzleActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val btnStart = findViewById<Button>(R.id.btn_start)
-        textTimer = findViewById(R.id.tv_timer)
-        textTimer.text = ""
-        btnStart.visibility = View.VISIBLE
+        val btnRefresh = findViewById<Button>(R.id.btn_refresh)
+        btnRefresh.visibility = View.VISIBLE
         layoutStarted = findViewById(R.id.ll_started)
         layoutStarted.visibility = View.GONE
-        val textWord = findViewById<TextView>(R.id.text_find)
+        textWord = findViewById(R.id.text_find)
         puzzleAdapter = WordPuzzleAdapter(this@PuzzleActivity)
         val recyclerView = findViewById<RecyclerView>(R.id.rv_word_puzzle)
 
@@ -76,20 +76,26 @@ class PuzzleActivity : AppCompatActivity() {
         random = RandomUtil()
 //        puzzleAdapter.addRandomWords(random.getRandomDigit())
 
-        textWord.text = random.getRandomWord()
 
-        puzzleAdapter.addRandomWords(random.getRandomArray(textWord.text.toString()))
-        puzzleAdapter.setWordPositionList(random.getWordPositionList())
-//        hideWordinArray(textWord.text.toString())
+        startPuzzle()
 
 
-        btnStart.setOnClickListener(View.OnClickListener {
-            btnStart.visibility = View.GONE
-            layoutStarted.visibility = View.VISIBLE
+
+
+        btnRefresh.setOnClickListener(View.OnClickListener {
+            startPuzzle()
 
 
         })
     }
+
+    private fun startPuzzle() {
+        puzzleAdapter.clearList()
+        textWord.text = random.getRandomWord()
+        someRandomTask().execute()
+
+    }
+
 
     private fun hideWordinArray(word: String) {
         var length = word.length
@@ -134,4 +140,17 @@ class PuzzleActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("StaticFieldLeak")
+    inner class someRandomTask : AsyncTask<Void, Void, ArrayList<Puzzle>>() {
+        override fun doInBackground(vararg params: Void?): ArrayList<Puzzle>? {
+
+            return random.getRandomArray(textWord.text.toString())
+        }
+
+
+        override fun onPostExecute(result: ArrayList<Puzzle>?) {
+            puzzleAdapter.addRandomWords(result!!)
+            puzzleAdapter.setWordPositionList(random.getWordPositionList())
+        }
+    }
 }
